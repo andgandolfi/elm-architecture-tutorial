@@ -29,6 +29,7 @@ initModel =
 type Action
   = NoOp
   | AddCounter
+  | RemoveOne
   | RemoveAll
   | RemoveCounter ItemId
   | DoCounter ItemId Counter.Action
@@ -51,6 +52,11 @@ update action model =
         | counters = newCounter :: model.counters
         , nextId = newNextId
         }
+
+    RemoveOne ->
+      { model |
+        counters = Maybe.withDefault [] (List.tail model.counters)
+      }
 
     RemoveAll ->
       { model
@@ -82,7 +88,7 @@ itemView : Signal.Address Action -> ItemModel -> Html
 itemView address model =
   div []
   [ Counter.view (Signal.forwardTo address (DoCounter model.id)) model.counter
-  , button [ onClick address (RemoveCounter model.id) ] [ text "×" ]
+  -- , button [ onClick address (RemoveCounter model.id) ] [ text "×" ]
   ]
 
 
@@ -91,6 +97,7 @@ view address model =
   div []
   ( List.concat
       [ [ button [ onClick address AddCounter ] [ text "Add Counter" ] ]
+      , [ button [ onClick address RemoveOne ] [ text "Remove One" ] ]
       , [ button [ onClick address RemoveAll ] [ text "Remove All" ] ]
       , List.map (itemView address) model.counters
       ]
