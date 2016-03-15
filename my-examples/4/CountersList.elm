@@ -86,10 +86,22 @@ update action model =
 -- VIEW
 itemView : Signal.Address Action -> ItemModel -> Html
 itemView address model =
-  div []
-  [ Counter.view (Signal.forwardTo address (DoCounter model.id)) model.counter
-  -- , button [ onClick address (RemoveCounter model.id) ] [ text "×" ]
-  ]
+  let
+    context =
+      { actions = Signal.forwardTo address (DoCounter model.id)
+      , remove = Signal.forwardTo address (always (RemoveCounter model.id))
+      }
+  in
+    div []
+    [ Counter.viewWithRemoveButton context model.counter
+    ]
+
+-- itemView : Signal.Address Action -> ItemModel -> Html
+-- itemView address model =
+--   div []
+--   [ Counter.view (Signal.forwardTo address (DoCounter model.id)) model.counter
+--   , button [ onClick address (RemoveCounter model.id) ] [ text "×" ]
+--   ]
 
 
 view : Signal.Address Action -> Model -> Html
